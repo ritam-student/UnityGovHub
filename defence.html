@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <title>Ministry of Defence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex flex-col relative text-white font-bold">
+
+  <!-- Dynamic Background -->
+  <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 animate-gradient-xy"></div>
+
+  <!-- Content Container -->
+  <div class="relative z-10 flex-grow flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 bg-opacity-100 shadow-md fixed w-full z-50">
+      <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+        <div class="text-2xl font-bold text-white flex flex-col">
+            <span>Ministry of</span>
+            <span>Defence</span>
+          </div>
+        <a href="index.html" class="text-xl font-bold text-blue-300 hover:text-white transition duration-300">UnityGovHub</a>
+      </div>
+    </nav>
+
+    <!-- Department Section -->
+    <div class="container mx-auto px-6 py-32">
+      <h2 class="text-3xl font-bold mb-12 text-center">Welcome to the Ministry of Defence</h2>
+      <p class="text-xl text-center max-w-4xl mx-auto">Safeguards the nation's security and sovereignty through strategic defence operations and the welfare of armed forces.</p>
+    </div>
+
+    <div class="container mx-auto px-6 mb-12 text-center">
+        <a href="forum.html" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out">
+          Schedule Your Work Now
+          <i class="fas fa-plus ml-2"></i>
+        </a>
+      </div>
+
+    <!-- Contact Us Section -->
+    <div id="contact" class="py-24">
+        <div class="container mx-auto px-6">
+          <h2 class="text-3xl font-bold mb-12 text-center">Contact Us</h2>
+          <form action="https://formspree.io/f/mqazorzq" method="POST" class="max-w-lg mx-auto">
+            <div class="mb-6">
+              <label for="name" class="block mb-2">Name</label>
+              <input type="text" id="name" name="name" class="w-full p-2 rounded bg-gray-800 text-white" required>
+            </div>
+            <div class="mb-6">
+              <label for="email" class="block mb-2">Email</label>
+              <input type="email" id="email" name="email" class="w-full p-2 rounded bg-gray-800 text-white" required>
+            </div>
+            <div class="mb-6">
+              <label for="message" class="block mb-2">Message</label>
+              <textarea id="message" name="message" rows="4" class="w-full p-2 rounded bg-gray-800 text-white" required></textarea>
+            </div>
+            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition duration-300">Send Message</button>
+          </form>
+        </div>
+      </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 bg-opacity-50 py-12 mt-auto w-full">
+        <div class="px-6">
+          <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+            <div class="mb-6 md:mb-0">
+              <h3 class="text-2xl font-bold text-blue-300">UnityGovHub</h3>
+              <p class="mt-2 text-gray-400">Empowering urban development through collaboration</p>
+            </div>
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 justify-center md:justify-end">
+              <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
+              <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
+              <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+  
+    </div>
+  
+  </body>
+  </html>
