@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Chat Forum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.7/dayjs.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        }
+        .chat-container {
+            height: calc(100vh - 16rem);
+        }
+        .message-container {
+            height: calc(100% - 4rem);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #2D3748;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4A5568;
+            border-radius: 20px;
+        }
+        .support-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .support-button:hover {
+            transform: scale(1.05);
+        }
+        @media (max-width: 640px) {
+            .chat-container {
+                height: calc(100vh - 12rem);
+            }
+            .support-button {
+                bottom: auto;
+                top: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-200 min-h-screen">
+    <div class="container mx-auto p-4 md:p-8">
+        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-white text-center">Department Chat Forum</h1>
+        
+        <div id="activeTicket" class="hidden fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg cursor-pointer transition-all hover:bg-green-600">
+            <i class="fas fa-ticket-alt mr-2"></i>Active Ticket
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Chat Area -->
+            <div class="lg:col-span-3 bg-gray-800 rounded-xl shadow-2xl p-4 md:p-6 chat-container">
+                <div id="messages" class="message-container space-y-4 mb-4 overflow-y-auto p-2 custom-scrollbar"></div>
+                <div class="flex space-x-2 bg-gray-700 p-2 rounded-lg">
+                    <input type="text" id="messageInput" class="flex-grow p-2 md:p-3 bg-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Type your message...">
+                    <button onclick="sendMessage()" class="bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                        <i class="fas fa-paper-plane mr-2 hidden md:inline"></i>Send
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="bg-gray-800 rounded-xl shadow-2xl p-4 md:p-6">
+                <h2 class="text-xl md:text-2xl font-semibold mb-4 text-white">Schedule Event</h2>
+                <input type="date" id="scheduleDate" class="w-full p-2 md:p-3 mb-4 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                <button onclick="scheduleEvent()" class="w-full bg-green-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                    <i class="fas fa-calendar-plus mr-2"></i>Schedule Event
+                </button>
+                <div id="scheduledEvents" class="mt-6 space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Support Button -->
+    <button id="supportButton" onclick="window.open('support.html', 'SupportWindow', 'width=400,height=600')" class="support-button bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+        <i class="fas fa-headset mr-2"></i><span class="hidden md:inline">Support</span>
+    </button>
+
+    <script>
+        let ticketActive = false;
+        const users = ['Aritwa', '👩‍💼', 'Soumen', '👨‍💼', 'Subhrajyoti', '👩‍🔬', 'Rahul', '👨‍🔧', 'Rohit', '👩‍🏫'];
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (message) {
+                addMessage('You', message, '👤');
+                input.value = '';
+                simulateResponse();
+
+                if (!ticketActive) {
+                    ticketActive = true;
+                    document.getElementById('activeTicket').classList.remove('hidden');
+                }
+            }
+        }
+
+        function addMessage(user, text, avatar) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `${user === 'You' ? 'ml-auto bg-blue-600' : 'mr-auto bg-gray-700'} p-4 rounded-lg shadow-md max-w-[80%] break-words flex items-start space-x-3`;
+            messageElement.innerHTML = `
+                <span class="text-2xl">${avatar}</span>
+                <div>
+                    <strong class="block text-sm text-gray-300">${user}</strong>
+                    <span>${text}</span>
+                </div>
+            `;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function simulateResponse() {
+            setTimeout(() => {
+                const userIndex = Math.floor(Math.random() * (users.length / 2)) * 2;
+                const user = users[userIndex];
+                const avatar = users[userIndex + 1];
+                const responses = [
+                    "That's a great point!",
+                    "I agree with that.",
+                    "Could you elaborate more on that?",
+                    "Suraj Bhosdiwala",
+                    "Priyangshu Nalla",
+                    "Arrangement kadwa do please",
+                    "I hadn't thought about it that way before.",
+                    "How does this align with our department goals?",
+                    "Can we schedule a meeting to discuss this further?",
+                    "Does anyone else have input on this?",
+                    "I think we should consider alternatives as well.",
+                    "Let's make sure to document this discussion for future reference."
+                ];
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                addMessage(user, response, avatar);
+            }, Math.random() * 2000 + 1000);
+        }
+
+        document.getElementById('activeTicket').addEventListener('click', function() {
+            if (confirm('Are you sure you want to close this ticket?')) {
+                this.classList.add('hidden');
+                ticketActive = false;
+            }
+        });
+
+        function scheduleEvent() {
+            const date = document.getElementById('scheduleDate').value;
+            if (date) {
+                addMessage('System', `Event scheduled for ${date}`, '🗓️');
+                addScheduledEvent(date);
+            } else {
+                alert('Please select a date');
+            }
+        }
+
+        function addScheduledEvent(date) {
+            const eventsDiv = document.getElementById('scheduledEvents');
+            const eventElement = document.createElement('div');
+            eventElement.className = 'bg-gray-700 p-3 rounded-lg text-sm flex justify-between items-center';
+            eventElement.innerHTML = `
+                <span>${date}</span>
+                <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 transition-colors">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+            eventsDiv.appendChild(eventElement);
+        }
+
+        window.onload = () => {
+            addMessage('Subhrajyoti', 'Hello everyone! Shall we start our discussion?', '👩‍💼');
+            setTimeout(() => addMessage('Aritwa', 'Hi Subhrajyoti! Yes, let\'s begin.', '👨‍💼'), 1000);
+            setTimeout(() => addMessage('Soumen', 'I have some ideas to share about our upcoming project.', '👩‍🔬'), 2000);
+        };
+    </script>
+</body>
+</html>
