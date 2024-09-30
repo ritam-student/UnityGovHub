@@ -1,167 +1,370 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UnityGovHub - Landing Page</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    @keyframes gradient-xy {
-      0%, 100% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 50%;
-      }
-    }
-
-    .animate-gradient-xy {
-      background-size: 400% 400%;
-      animation: gradient-xy 15s ease infinite;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnityGovHub - Landing Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script type="module" src="register.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        #mobile-menu {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+        #mobile-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col relative text-white font-bold">
-
-  <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-400 animate-gradient-xy"></div>
-
-  <div class="relative z-10 flex-grow flex flex-col">
-    <nav class="bg-gray-800 bg-opacity-90 shadow-md fixed w-full z-50">
-      <div class="container mx-auto px-6 py-3 flex justify-between items-center">
-        <div class="flex items-center">
-          <img src="https://uxdt.nic.in/wp-content/uploads/2020/01/NE_Preview1.png?x69772" alt="" class="h-10 w-10 mr-3">
-          <div class="text-2xl font-bold text-white cursor-pointer" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">UnityGovHub</div>
+<body class="min-h-screen flex flex-col relative text-gray-800">
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img class="h-8 w-auto" src="https://uxdt.nic.in/wp-content/uploads/2020/01/NE_Preview1.png?x69772" alt="UnityGovHub">
+                        <span class="ml-2 text-xl font-bold text-gray-800">UnityGovHub</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                    <a href="#" id="departmentsLink" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" style="display: none;">Departments</a>
+                    <a href="tickets.html" id="ticketsLink" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium" style="display: none;">Tickets</a>
+                    <a href="projects.html" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Projects</a>
+                    <a href="#" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Events</a>
+                    <a href="#contact" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium scroll-smooth">Contact Us</a>
+                    <button id="authButton" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-300" style="display: none;">Sign In / Sign Up</button>
+                    <button id="getStartedButton" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition duration-300" style="display: none;" onclick="window.location.href='department.html'">Get Started</button>
+                    <!-- Add this new button for Tickets -->
+                    <button id="ticketsButton" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition duration-300" style="display: none;" onclick="window.location.href='tickets.html'">Tickets</button>
+                    <button id="signOutButton" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition duration-300" style="display: none;">Sign Out</button>
+                    <div id="loadingButton" class="bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium">Loading...</div>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button id="menu-toggle" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="hidden md:flex space-x-8">
-          <button onclick="window.location.href='department.html'" class="nav-link text-white hover:text-blue-300 transition duration-300">Get Started</button>
-          <button class="nav-link text-white hover:text-blue-300 transition duration-300" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Features</button>
-          <button class="nav-link text-white hover:text-blue-300 transition duration-300" onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">About Us</button>
-          <button class="nav-link text-white hover:text-blue-300 transition duration-300" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">Contact Us</button>
-        </div>
-        <button id="menu-toggle" class="md:hidden text-white hover:text-blue-300 transition duration-300">
-          <span id="menu-icon">☰</span>
-        </button>
-      </div>
     </nav>
 
-    <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-gray-800 bg-opacity-90 flex items-center justify-center">
-      <div class="text-center">
-        <button onclick="window.location.href='department.html'" class="mobile-link block py-2 text-white hover:text-blue-300 transition duration-300">Get Started</button>
-        <button class="mobile-link block py-2 text-white hover:text-blue-300 transition duration-300" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">Features</button>
-        <button class="mobile-link block py-2 text-white hover:text-blue-300 transition duration-300" onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">About Us</button>
-        <button class="mobile-link block py-2 text-white hover:text-blue-300 transition duration-300" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">Contact Us</button>
-      </div>
-    </div>
-
-    <script>
-      const menuToggle = document.getElementById('menu-toggle');
-      const mobileMenu = document.getElementById('mobile-menu');
-      const menuIcon = document.getElementById('menu-icon');
-
-      menuToggle.addEventListener('click', function () {
-        if (mobileMenu.classList.contains('hidden')) {
-          mobileMenu.classList.remove('hidden'); 
-          menuIcon.textContent = '✕'; 
-        } else {
-          mobileMenu.classList.add('hidden'); 
-          menuIcon.textContent = '☰'; 
-        }
-      });
-
-      const mobileLinks = document.querySelectorAll('.mobile-link');
-      mobileLinks.forEach(link => {
-        link.addEventListener('click', function () {
-          mobileMenu.classList.add('hidden'); 
-          menuIcon.textContent = '☰'; 
-        });
-      });
-    </script>
-
-    <div id="hero" class="bg-cover bg-center min-h-screen flex items-center justify-center" style="background-image: url();">
-      <div class="bg-black-200 bg-opacity-0 w-full h-full flex items-center justify-center">
-        <div class="text-center">
-          <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Revolutionizing <span class="text-blue-300">Urban Governance</span></h1>
-          <p class="text-xl mb-10 max-w-2xl mx-auto">Streamline interdepartmental cooperation with our cutting-edge digital platform</p>
-          <button onclick="window.location.href='department.html'" class="bg-white text-blue-800 px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">Get Started</button>
+    <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-gray-800 bg-opacity-95 flex items-center justify-center">
+        <div class="text-center w-full px-4">
+            <a href="#" class="mobile-link block text-white hover:bg-blue-600 px-4 py-3 rounded-md text-lg font-medium mb-3 transition duration-300" data-target="top">Home</a>
+            <a href="#" id="mobileDepartmentsLink" class="mobile-link block text-white hover:bg-blue-600 px-4 py-3 rounded-md text-lg font-medium mb-3 transition duration-300" style="display: none;">Departments</a>
+            <a href="tickets.html" id="mobileTicketsLink" class="mobile-link block text-white hover:bg-blue-600 px-4 py-3 rounded-md text-lg font-medium mb-3 transition duration-300" style="display: none;">Tickets</a>
+            <a href="projects.html" class="mobile-link block text-white hover:bg-blue-600 px-4 py-3 rounded-md text-lg font-medium mb-3 transition duration-300">Projects</a>
+            <a href="#" class="mobile-link block text-white hover:bg-blue-600 px-4 py-3 rounded-md text-lg font-medium mb-3 transition duration-300" data-target="top">Events</a>
+            <a href="#contact" class="mobile-link block text-white hover:bg-blue-600 px-4 py-3 rounded-md text-lg font-medium mb-3 transition duration-300">Contact Us</a>
+            <button id="mobileAuthButton" class="w-full bg-blue-600 text-white px-4 py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition duration-300 mb-3" style="display: none;">Sign In / Sign Up</button>
+            <button id="mobileGetStartedButton" class="w-full bg-green-600 text-white px-4 py-3 rounded-md text-lg font-medium hover:bg-green-700 transition duration-300 mb-3" style="display: none;" onclick="window.location.href='department.html'">Get Started</button>
+            <!-- Add this new button for Tickets in mobile menu -->
+            <button id="mobileTicketsButton" class="w-full bg-blue-600 text-white px-4 py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition duration-300 mb-3" style="display: none;" onclick="window.location.href='tickets.html'">Tickets</button>
+            <button id="mobileSignOutButton" class="w-full bg-red-600 text-white px-4 py-3 rounded-md text-lg font-medium hover:bg-red-700 transition duration-300 mb-3" style="display: none;">Sign Out</button>
+            <div id="mobileLoadingButton" class="w-full bg-gray-400 text-white px-4 py-3 rounded-md text-lg font-medium mb-3">Loading...</div>
+            <button id="closeMobileMenu" class="mt-4 text-white hover:text-gray-300 transition duration-300">
+                <i class="fas fa-times text-3xl"></i>
+            </button>
         </div>
-      </div>
-    </div>
-    
-    <div id="features" class="py-24">
-      <div class="container mx-auto px-6">
-        <h2 class="text-3xl font-bold mb-12 text-center">Key Features</h2>
-        <div class="grid md:grid-cols-3 gap-12">
-          <a href="https://journals.sagepub.com/doi/abs/10.1177/1078087407302766" class="bg-gray-800 bg-opacity-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2 group">
-            <h3 class="text-xl font-semibold mb-4 group-hover:text-gray-300">Resource Exchange</h3>
-            <p class="text-gray-300 group-hover:text-gray-400">Share data, expertise, and equipment across departments</p>
-            <div class="mt-4 text-blue-300 group-hover:text-gray-300 transition duration-300">Read More →</div>
-          </a>
-          <a href="https://www.researchgate.net/publication/345913127_Role_of_Coordination_in_Effective_Public_Service_Delivery_System" class="bg-gray-800 bg-opacity-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2 group">
-            <h3 class="text-xl font-semibold mb-4 group-hover:text-gray-300">Project Coordination</h3>
-            <p class="text-gray-300 group-hover:text-gray-400">Schedule tasks and distribute work for interdepartmental projects</p>
-            <div class="mt-4 text-blue-300 group-hover:text-gray-300 transition duration-300">Read More →</div>
-          </a>
-          <a href="https://www.researchgate.net/publication/371394107_Case_Study_Analysis_of_Unified_and_Non-Unified_Planning_of_Urban_Public_Space" class="bg-gray-800 bg-opacity-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2 group">
-            <h3 class="text-xl font-semibold mb-4 group-hover:text-gray-300">Unified Planning</h3>
-            <p class="text-gray-300 group-hover:text-gray-400">Identify overlapping projects and optimize execution</p>
-            <div class="mt-4 text-blue-300 group-hover:text-gray-300 transition duration-300">Read More →</div>
-          </a>
-        </div>
-      </div>
     </div>
 
-    <div id="about" class="py-24 bg-gray-700 bg-opacity-0">
-      <div class="container mx-auto px-6">
-        <h2 class="text-3xl font-bold mb-12 text-center">About Us</h2>
-        <p class="text-xl text-center max-w-4xl mx-auto">UnityGovHub is dedicated to revolutionizing urban governance through innovative digital solutions. Our platform facilitates seamless cooperation between various government departments, optimizing resource utilization and project execution in India's urban landscape.</p>
-      </div>
+    <div class="relative z-10 flex-grow flex flex-col">
+        <main class="flex-grow">
+            <!-- Hero Section -->
+            <div class="bg-blue-600 text-white py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h1 class="text-4xl font-bold mb-4">Revolutionizing Urban Governance</h1>
+                    <p class="text-xl mb-8">Streamline interdepartmental cooperation with our cutting-edge digital platform</p>
+                    <button id="heroAuthButton" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300" style="display: none;">Sign Up / Sign In</button>
+                    <button id="heroGetStartedButton" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-300" style="display: none;" onclick="window.location.href='department.html'">Get Started</button>
+                    <button id="heroSignOutButton" class="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition duration-300" style="display: none;">Sign Out</button>
+                    <div id="heroLoadingButton" class="bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div id="features" class="py-24 bg-gray-100">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Key Features</h2>
+                    <div class="grid md:grid-cols-3 gap-12">
+                        <a href="https://journals.sagepub.com/doi/abs/10.1177/1078087407302766" class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2 group">
+                            <i class="fas fa-exchange-alt text-4xl mb-4 text-blue-600 group-hover:text-blue-700"></i>
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800 group-hover:text-blue-600">Resource Exchange</h3>
+                            <p class="text-gray-600 group-hover:text-gray-700">Share data, expertise, and equipment across departments</p>
+                            <div class="mt-4 text-blue-600 group-hover:text-blue-700 transition duration-300">Read More →</div>
+                        </a>
+                        <a href="https://www.researchgate.net/publication/345913127_Role_of_Coordination_in_Effective_Public_Service_Delivery_System" class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2 group">
+                            <i class="fas fa-tasks text-4xl mb-4 text-blue-600 group-hover:text-blue-700"></i>
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800 group-hover:text-blue-600">Project Coordination</h3>
+                            <p class="text-gray-600 group-hover:text-gray-700">Schedule tasks and distribute work for interdepartmental projects</p>
+                            <div class="mt-4 text-blue-600 group-hover:text-blue-700 transition duration-300">Read More →</div>
+                        </a>
+                        <a href="https://www.researchgate.net/publication/371394107_Case_Study_Analysis_of_Unified_and_Non-Unified_Planning_of_Urban_Public_Space" class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2 group">
+                            <i class="fas fa-chart-line text-4xl mb-4 text-blue-600 group-hover:text-blue-700"></i>
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800 group-hover:text-blue-600">Unified Planning</h3>
+                            <p class="text-gray-600 group-hover:text-gray-700">Identify overlapping projects and optimize execution</p>
+                            <div class="mt-4 text-blue-600 group-hover:text-blue-700 transition duration-300">Read More →</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Us Section -->
+            <div id="about" class="py-24 bg-white">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-3xl font-bold mb-12 text-center text-gray-800">About Us</h2>
+                    <p class="text-xl text-center max-w-4xl mx-auto text-gray-700">UnityGovHub is dedicated to revolutionizing urban governance through innovative digital solutions. Our platform facilitates seamless cooperation between various government departments, optimizing resource utilization and project execution in India's urban landscape.</p>
+                </div>
+            </div>
+
+            <!-- Contact Us Section -->
+            <div id="contact" class="py-24 bg-gray-100">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Contact Us</h2>
+                    <div class="max-w-lg mx-auto">
+                        <form action="https://formspree.io/f/mqazorzq" method="POST" class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                                <input type="text" id="name" name="name" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="emailid" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" id="emailid" name="emailid" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                                <textarea id="message" name="message" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required></textarea>
+                            </div>
+                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-100 shadow-lg mt-auto">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <h3 class="text-xl font-bold text-blue-600">UnityGovHub</h3>
+                        <p class="mt-2 text-gray-600">Empowering urban development through collaboration</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
+                        <a href="#" class="text-gray-600 hover:text-blue-600 transition duration-300">Privacy Policy</a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600 transition duration-300">Terms of Service</a>
+                        <a href="#contact" class="text-gray-600 hover:text-blue-600 transition duration-300">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <!--contact section-->
-    <div id="contact" class="py-24">
-        <div class="container mx-auto px-6">
-          <h2 class="text-3xl font-bold mb-12 text-center">Contact Us</h2>
-          <form action="https://formspree.io/f/mqazorzq" method="POST" class="max-w-lg mx-auto">
-            <div class="mb-6">
-              <label for="name" class="block mb-2">Name</label>
-              <input type="text" id="name" name="name" class="w-full p-2 rounded bg-gray-800 text-white" required>
-            </div>
-            <div class="mb-6">
-              <label for="email" class="block mb-2">Email</label>
-              <input type="email" id="email" name="email" class="w-full p-2 rounded bg-gray-800 text-white" required>
-            </div>
-            <div class="mb-6">
-              <label for="message" class="block mb-2">Message</label>
-              <textarea id="message" name="message" rows="4" class="w-full p-2 rounded bg-gray-800 text-white" required></textarea>
-            </div>
-            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition duration-300">Send Message</button>
-          </form>
-        </div>
-      </div>
-      
-<!--footer-->
-    <footer class="bg-gray-900 bg-opacity-50 py-12 mt-auto w-full">
-      <div class="px-6">
-        <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-          <div class="mb-6 md:mb-0">
-            <h3 class="text-2xl font-bold text-blue-300">UnityGovHub</h3>
-            <p class="mt-2 text-gray-400">Empowering urban development through collaboration</p>
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-8 border w-96 shadow-2xl rounded-lg bg-white">
+            <button id="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="mt-3">
+                <h3 class="text-2xl leading-6 font-bold text-gray-900 mb-6" id="modalTitle">Sign In</h3>
+                <form id="authForm" class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" placeholder="you@example.com" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" placeholder="••••••••" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
+                  </div>
+                  <div id="userTypeContainer" class="mb-4">
+                      <!-- User type selection will be dynamically added here -->
+                  </div>
+                  <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Submit</button>
+              </form>
+              <p class="mt-4 text-sm text-center">
+                  <span id="switchText">Don't have an account?</span>
+                  <a href="#" id="switchLink" class="font-medium text-blue-600 hover:text-blue-500">Sign Up</a>
+              </p>
           </div>
-          <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 justify-center md:justify-end">
-            <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
-            <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
-            <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact</a>
           </div>
-        </div>
-      </div>
-    </footer>
-  
-  </div>
-  
-</body>
-</html>
+          
+          <script>
+          // Initialize Firebase
+          const firebaseConfig = {
+              apiKey: "AIzaSyD_1KNu8igoG60o-OejxQdEbuqP1gCLSAo",
+              authDomain: "unity-19852.firebaseapp.com",
+              projectId: "unity-19852",
+              storageBucket: "unity-19852.appspot.com",
+              messagingSenderId: "345194493851",
+              appId: "1:345194493851:web:e144902274a7dda622933e"
+          };
+          firebase.initializeApp(firebaseConfig);
+
+          document.addEventListener('DOMContentLoaded', () => {
+              const menuToggle = document.getElementById('menu-toggle');
+              const mobileMenu = document.getElementById('mobile-menu');
+              const closeMobileMenu = document.getElementById('closeMobileMenu');
+          
+              function hideMobileMenu() {
+                  mobileMenu.classList.remove('active');
+                  mobileMenu.classList.add('hidden');
+              }
+          
+              function showMobileMenu() {
+                  mobileMenu.classList.add('active');
+                  mobileMenu.classList.remove('hidden');
+              }
+          
+              menuToggle.addEventListener('click', showMobileMenu);
+              closeMobileMenu.addEventListener('click', hideMobileMenu);
+          
+              // Handle clicks on mobile menu items
+              document.querySelectorAll('.mobile-link').forEach(link => {
+                  link.addEventListener('click', (e) => {
+                      e.preventDefault();
+                      hideMobileMenu();
+                  
+                      const target = link.getAttribute('data-target') || link.getAttribute('href');
+                  
+                      if (target === 'top' || target === '#') {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                      } else if (target.startsWith('#')) {
+                          const targetElement = document.querySelector(target);
+                          if (targetElement) {
+                              setTimeout(() => {
+                                  targetElement.scrollIntoView({ behavior: 'smooth' });
+                              }, 300);
+                          }
+                      } else {
+                          setTimeout(() => {
+                              window.location.href = target;
+                          }, 300);
+                      }
+                  });
+              });
+
+              // Auth-related code
+              const closeModalButton = document.getElementById('closeModal');
+              const authModal = document.getElementById('authModal');
+
+              if (closeModalButton && authModal) {
+                  closeModalButton.addEventListener('click', () => {
+                      authModal.classList.add('hidden');
+                  });
+              }
+
+              function updateAuthButtons(isSignedIn) {
+                  const authButtons = document.querySelectorAll('#authButton, #mobileAuthButton, #heroAuthButton');
+                  const getStartedButtons = document.querySelectorAll('#getStartedButton, #mobileGetStartedButton, #heroGetStartedButton');
+                  const signOutButtons = document.querySelectorAll('#signOutButton, #mobileSignOutButton');
+                  const departmentLinks = document.querySelectorAll('#departmentsLink, #mobileDepartmentsLink');
+                  const ticketsButtons = document.querySelectorAll('#ticketsButton, #mobileTicketsButton');
+
+                  authButtons.forEach(button => button.style.display = isSignedIn ? 'none' : 'inline-block');
+                  getStartedButtons.forEach(button => button.style.display = isSignedIn ? 'inline-block' : 'none');
+                  signOutButtons.forEach(button => button.style.display = isSignedIn ? 'inline-block' : 'none');
+                  departmentLinks.forEach(link => link.style.display = isSignedIn ? 'inline-block' : 'none');
+                  ticketsButtons.forEach(button => button.style.display = isSignedIn ? 'inline-block' : 'none');
+              }
+
+              function onSignIn() {
+                  updateAuthButtons(true);
+              }
+
+              function onSignOut() {
+                  updateAuthButtons(false);
+              }
+
+              firebase.auth().onAuthStateChanged((user) => {
+                  if (user) {
+                      onSignIn();
+                  } else {
+                      onSignOut();
+                  }
+              });
+
+              // Add event listeners for auth buttons
+              document.querySelectorAll('#authButton, #mobileAuthButton, #heroAuthButton').forEach(button => {
+                  button.addEventListener('click', () => {
+                      authModal.classList.remove('hidden');
+                  });
+              });
+
+              document.querySelectorAll('#signOutButton, #mobileSignOutButton').forEach(button => {
+                  button.addEventListener('click', () => {
+                      firebase.auth().signOut().then(() => {
+                          console.log('User signed out');
+                      }).catch((error) => {
+                          console.error('Sign out error', error);
+                      });
+                  });
+              });
+
+              // Handle auth form submission
+              const authForm = document.getElementById('authForm');
+              authForm.addEventListener('submit', (e) => {
+                  e.preventDefault();
+                  const email = document.getElementById('email').value;
+                  const password = document.getElementById('password').value;
+                  const isSignUp = document.getElementById('modalTitle').textContent === 'Sign Up';
+
+                  if (isSignUp) {
+                      firebase.auth().createUserWithEmailAndPassword(email, password)
+                          .then((userCredential) => {
+                              console.log('User signed up:', userCredential.user);
+                              authModal.classList.add('hidden');
+                          })
+                          .catch((error) => {
+                              console.error('Sign up error:', error);
+                              alert(error.message);
+                          });
+                  } else {
+                      firebase.auth().signInWithEmailAndPassword(email, password)
+                          .then((userCredential) => {
+                              console.log('User signed in:', userCredential.user);
+                              authModal.classList.add('hidden');
+                          })
+                          .catch((error) => {
+                              console.error('Sign in error:', error);
+                              alert(error.message);
+                          });
+                  }
+              });
+
+              // Switch between Sign In and Sign Up
+              const switchLink = document.getElementById('switchLink');
+              switchLink.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  const modalTitle = document.getElementById('modalTitle');
+                  const switchText = document.getElementById('switchText');
+                  if (modalTitle.textContent === 'Sign In') {
+                      modalTitle.textContent = 'Sign Up';
+                      switchText.textContent = 'Already have an account?';
+                      switchLink.textContent = 'Sign In';
+                  } else {
+                      modalTitle.textContent = 'Sign In';
+                      switchText.textContent = 'Don\'t have an account?';
+                      switchLink.textContent = 'Sign Up';
+                  }
+              });
+          });
+          </script>
+          </body>
+          </html>
